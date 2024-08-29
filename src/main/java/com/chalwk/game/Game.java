@@ -17,8 +17,6 @@ import java.util.TimerTask;
  */
 public class Game {
 
-
-    private final GameManager gameManager;
     /**
      * The user who initiated the game.
      */
@@ -43,7 +41,6 @@ public class Game {
      */
     public Game(User invitingPlayer, User invitedPlayer, GameManager gameManager, SlashCommandInteractionEvent event) {
         this.event = event;
-        this.gameManager = gameManager;
         this.invitingPlayer = invitingPlayer;
         this.invitedPlayer = invitedPlayer;
     }
@@ -75,6 +72,7 @@ public class Game {
                             .setDescription("Game between " + invitingPlayer.getName() + " and " + invitedPlayer.getName() + " has ended!")
                             .setColor(Color.GREEN).build()).queue();
                 }
+                // todo: Create checkGameState() (or checkForWinner()) method to check if a player has won the game
             }
         }, 0, 1000);
     }
