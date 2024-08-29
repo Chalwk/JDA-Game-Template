@@ -37,9 +37,9 @@ public class Game {
      *
      * @param invitingPlayer the user who initiated the game
      * @param invitedPlayer  the user who was invited to join the game
-     * @param gameManager    the GameManager managing game operations
+     * @param event the event that triggered the game creation
      */
-    public Game(User invitingPlayer, User invitedPlayer, GameManager gameManager, SlashCommandInteractionEvent event) {
+    public Game(User invitingPlayer, User invitedPlayer, SlashCommandInteractionEvent event) {
         this.event = event;
         this.invitingPlayer = invitingPlayer;
         this.invitedPlayer = invitedPlayer;
@@ -47,6 +47,7 @@ public class Game {
 
     /**
      * Starts the game, sends a notification to both players, and schedules the game end task.
+     * @param event the event that triggered the game start
      */
     public void startGame(SlashCommandInteractionEvent event) {
         this.startTime = new Date();

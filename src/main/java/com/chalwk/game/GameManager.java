@@ -41,11 +41,11 @@ public class GameManager {
      *
      * @param invitingPlayer the user who initiated the game
      * @param invitedPlayer  the user who was invited to join the game
-     * @param event
+     * @param event the event that triggered the game creation
      */
     public void createGame(User invitingPlayer, User invitedPlayer, SlashCommandInteractionEvent event) {
         if (!isInGame(invitingPlayer) && !isInGame(invitedPlayer)) {
-            Game game = new Game(invitingPlayer, invitedPlayer, this, event);
+            Game game = new Game(invitingPlayer, invitedPlayer, event);
             game.startGame(event);
             games.put(invitingPlayer, game);
             games.put(invitedPlayer, game);
@@ -57,7 +57,7 @@ public class GameManager {
      *
      * @param invitingPlayer the user who initiated the game
      * @param invitedPlayer  the user who was invited to join the game
-     * @param event
+     * @param event the event that triggered the invite
      */
     public void invitePlayer(User invitingPlayer, User invitedPlayer, SlashCommandInteractionEvent event) {
 
@@ -81,7 +81,7 @@ public class GameManager {
      * Accepts a pending invite and creates a new game with the inviting and invited players.
      *
      * @param invitedPlayer the user who accepted the invite
-     * @param event         the event that triggered the invite acceptance
+     * @param event the event that triggered the invite acceptance
      */
     public void acceptInvite(User invitedPlayer, SlashCommandInteractionEvent event) {
         User invitingPlayer = pendingInvites.get(invitedPlayer);
@@ -97,7 +97,7 @@ public class GameManager {
      * Declines a pending invite and notifies the inviting player.
      *
      * @param invitedPlayer the user who declined the invite
-     * @param event
+     * @param event the event that triggered the invite decline
      */
     public void declineInvite(User invitedPlayer, SlashCommandInteractionEvent event) {
         User invitingPlayer = pendingInvites.get(invitedPlayer);
