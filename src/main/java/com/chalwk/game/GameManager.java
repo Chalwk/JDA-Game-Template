@@ -11,6 +11,7 @@ import java.util.Map;
  * Manages game-related operations, including creating games, inviting players, and managing pending invites.
  */
 public class GameManager {
+
     private final Map<User, Game> games;
     private final Map<User, User> pendingInvites;
 
@@ -48,6 +49,18 @@ public class GameManager {
     }
 
     /**
+     * Sends a private message to the specified user.
+     *
+     * @param user    the recipient of the message
+     * @param message the content of the message
+     */
+    public void sendPrivateMessage(User user, String message) {
+        user.openPrivateChannel().queue(channel -> {
+            channel.sendMessage(message).queue();
+        });
+    }
+
+    /**
      * Invites a player to join a game.
      *
      * @param invitingPlayer the user who initiated the game
@@ -61,18 +74,6 @@ public class GameManager {
         } else {
             sendPrivateMessage(invitingPlayer, "You or the invited player are already in a game.");
         }
-    }
-
-    /**
-     * Sends a private message to the specified user.
-     *
-     * @param user    the recipient of the message
-     * @param message the content of the message
-     */
-    public void sendPrivateMessage(User user, String message) {
-        user.openPrivateChannel().queue(channel -> {
-            channel.sendMessage(message).queue();
-        });
     }
 
     /**

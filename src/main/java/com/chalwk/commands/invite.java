@@ -10,7 +10,6 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class invite implements CommandInterface {
@@ -46,11 +45,7 @@ public class invite implements CommandInterface {
 
     @Override
     public List<OptionData> getOptions() {
-
-        List<OptionData> options = new ArrayList<>();
-        options.add(new OptionData(OptionType.USER, "user", "The user to invite", true));
-
-        return options;
+        return List.of(new OptionData(OptionType.USER, "user", "The user to invite", true));
     }
 
     /**

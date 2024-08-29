@@ -5,5 +5,9 @@ package com.chalwk.util;
 
 public class settings {
 
-    public static final int DEFAULT_TIME_LIMIT = 60;
+    public static final int DEFAULT_TIME_LIMIT = 300;
+
+    public static int getDefaultTimeLimit() {
+        return DEFAULT_TIME_LIMIT;
+    }
 }

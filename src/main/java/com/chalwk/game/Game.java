@@ -2,6 +2,7 @@
    See the LICENSE file or visit https://www.gnu.org/licenses/gpl-3.0.en.html for details. */
 package com.chalwk.game;
 
+import com.chalwk.util.settings;
 import net.dv8tion.jda.api.entities.User;
 
 import java.util.Date;
@@ -13,10 +14,7 @@ import java.util.TimerTask;
  */
 public class Game {
 
-    /**
-     * The default time limit for a game in seconds.
-     */
-    private static final int DEFAULT_TIME_LIMIT = 300;
+
     private final GameManager gameManager;
     /**
      * The user who initiated the game.
@@ -78,6 +76,6 @@ public class Game {
      */
     private boolean isTimeUp() {
         long elapsedTime = System.currentTimeMillis() - startTime.getTime();
-        return elapsedTime > DEFAULT_TIME_LIMIT * 1000L;
+        return elapsedTime > settings.getDefaultTimeLimit() * 1000L;
     }
 }
