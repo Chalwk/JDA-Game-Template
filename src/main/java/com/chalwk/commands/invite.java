@@ -60,7 +60,7 @@ public class invite implements CommandInterface {
         User userToInvite = event.getOption("user").getAsUser();
         User invitingPlayer = event.getUser();
 
-        gameManager.invitePlayer(invitingPlayer, userToInvite);
+        gameManager.invitePlayer(invitingPlayer, userToInvite, event);
 
         COOLDOWN_MANAGER.setCooldown("invite", event.getUser());
     }

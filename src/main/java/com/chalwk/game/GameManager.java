@@ -2,8 +2,11 @@
    See the LICENSE file or visit https://www.gnu.org/licenses/gpl-3.0.en.html for details. */
 package com.chalwk.game;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,26 +41,15 @@ public class GameManager {
      *
      * @param invitingPlayer the user who initiated the game
      * @param invitedPlayer  the user who was invited to join the game
+     * @param event
      */
-    public void createGame(User invitingPlayer, User invitedPlayer) {
+    public void createGame(User invitingPlayer, User invitedPlayer, SlashCommandInteractionEvent event) {
         if (!isInGame(invitingPlayer) && !isInGame(invitedPlayer)) {
-            Game game = new Game(invitingPlayer, invitedPlayer, this);
-            game.startGame();
+            Game game = new Game(invitingPlayer, invitedPlayer, this, event);
+            game.startGame(event);
             games.put(invitingPlayer, game);
             games.put(invitedPlayer, game);
         }
-    }
-
-    /**
-     * Sends a private message to the specified user.
-     *
-     * @param user    the recipient of the message
-     * @param message the content of the message
-     */
-    public void sendPrivateMessage(User user, String message) {
-        user.openPrivateChannel().queue(channel -> {
-            channel.sendMessage(message).queue();
-        });
     }
 
     /**
@@ -65,14 +57,23 @@ public class GameManager {
      *
      * @param invitingPlayer the user who initiated the game
      * @param invitedPlayer  the user who was invited to join the game
+     * @param event
      */
-    public void invitePlayer(User invitingPlayer, User invitedPlayer) {
+    public void invitePlayer(User invitingPlayer, User invitedPlayer, SlashCommandInteractionEvent event) {
+
+        EmbedBuilder embed = new EmbedBuilder();
+        embed.setTitle("Game Invite");
+
         if (!isInGame(invitingPlayer) && !isInGame(invitedPlayer)) {
             pendingInvites.put(invitedPlayer, invitingPlayer);
-            sendPrivateMessage(invitedPlayer, "You have been invited to play a game by " + invitingPlayer.getName() + "!");
-            sendPrivateMessage(invitingPlayer, "Invite sent to " + invitedPlayer.getName() + "!");
+            event.replyEmbeds(embed
+                    .setDescription(invitingPlayer.getAsMention() + " has invited " + invitedPlayer.getAsMention() + " to play a game!")
+                    .setFooter("Type /accept to join the game or /decline to decline the invite.")
+                    .setColor(Color.GREEN).build()).queue();
         } else {
-            sendPrivateMessage(invitingPlayer, "You or the invited player are already in a game.");
+            event.replyEmbeds(embed
+                    .setDescription("You or " + invitedPlayer.getName() + " are already in a game.")
+                    .setColor(Color.RED).build()).setEphemeral(true).queue();
         }
     }
 
@@ -80,24 +81,30 @@ public class GameManager {
      * Accepts a pending invite and creates a new game with the inviting and invited players.
      *
      * @param invitedPlayer the user who accepted the invite
+     * @param event         the event that triggered the invite acceptance
      */
-    public void acceptInvite(User invitedPlayer) {
+    public void acceptInvite(User invitedPlayer, SlashCommandInteractionEvent event) {
         User invitingPlayer = pendingInvites.get(invitedPlayer);
         pendingInvites.remove(invitedPlayer);
-        createGame(invitingPlayer, invitedPlayer);
-        sendPrivateMessage(invitedPlayer, "You accepted the invite from " + invitingPlayer.getName() + "!");
-        sendPrivateMessage(invitingPlayer, "Your invite was accepted by " + invitedPlayer.getName() + "!");
+        createGame(invitingPlayer, invitedPlayer, event);
+        event.replyEmbeds(new EmbedBuilder()
+                .setTitle("Game Invite")
+                .setDescription(invitedPlayer.getName() + " has accepted the invite from " + invitingPlayer.getName() + "!")
+                .setColor(Color.GREEN).build()).queue();
     }
 
     /**
      * Declines a pending invite and notifies the inviting player.
      *
      * @param invitedPlayer the user who declined the invite
+     * @param event
      */
-    public void declineInvite(User invitedPlayer) {
+    public void declineInvite(User invitedPlayer, SlashCommandInteractionEvent event) {
         User invitingPlayer = pendingInvites.get(invitedPlayer);
-        sendPrivateMessage(invitedPlayer, "You declined the invite.");
-        sendPrivateMessage(invitingPlayer, invitedPlayer.getName() + " declined your invite.");
+        event.replyEmbeds(new EmbedBuilder()
+                .setTitle("Game Invite")
+                .setDescription(invitedPlayer.getName() + " has declined the invite from " + invitingPlayer.getName() + "!")
+                .setColor(Color.RED).build()).queue();
         pendingInvites.remove(invitedPlayer);
     }
 

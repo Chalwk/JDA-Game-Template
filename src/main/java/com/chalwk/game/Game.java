@@ -3,8 +3,11 @@
 package com.chalwk.game;
 
 import com.chalwk.util.settings;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 
+import java.awt.*;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -29,6 +32,8 @@ public class Game {
      */
     private Date startTime;
 
+    private final SlashCommandInteractionEvent event;
+
     /**
      * Creates a new Game instance for the specified players and assigns a GameManager.
      *
@@ -36,7 +41,8 @@ public class Game {
      * @param invitedPlayer  the user who was invited to join the game
      * @param gameManager    the GameManager managing game operations
      */
-    public Game(User invitingPlayer, User invitedPlayer, GameManager gameManager) {
+    public Game(User invitingPlayer, User invitedPlayer, GameManager gameManager, SlashCommandInteractionEvent event) {
+        this.event = event;
         this.gameManager = gameManager;
         this.invitingPlayer = invitingPlayer;
         this.invitedPlayer = invitedPlayer;
@@ -45,10 +51,12 @@ public class Game {
     /**
      * Starts the game, sends a notification to both players, and schedules the game end task.
      */
-    public void startGame() {
+    public void startGame(SlashCommandInteractionEvent event) {
         this.startTime = new Date();
-        gameManager.sendPrivateMessage(invitingPlayer, "Game started with " + invitedPlayer.getName() + "!");
-        gameManager.sendPrivateMessage(invitedPlayer, "Game started with " + invitingPlayer.getName() + "!");
+        event.replyEmbeds(new EmbedBuilder()
+                .setTitle("New Game")
+                .setDescription("A new game between " + invitingPlayer.getName() + " and " + invitedPlayer.getName() + " has started!")
+                .setColor(Color.GREEN).build()).queue();
         scheduleGameEndTask();
     }
 
@@ -62,8 +70,10 @@ public class Game {
             public void run() {
                 if (isTimeUp()) {
                     this.cancel();
-                    gameManager.sendPrivateMessage(invitingPlayer, "Time's up! Game with " + invitedPlayer.getName() + " has ended.");
-                    gameManager.sendPrivateMessage(invitedPlayer, "Time's up! Game with " + invitingPlayer.getName() + " has ended.");
+                    event.replyEmbeds(new EmbedBuilder()
+                            .setTitle("Times up!")
+                            .setDescription("Game between " + invitingPlayer.getName() + " and " + invitedPlayer.getName() + " has ended!")
+                            .setColor(Color.GREEN).build()).queue();
                 }
             }
         }, 0, 1000);

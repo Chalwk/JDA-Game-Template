@@ -63,14 +63,14 @@ public class accept implements CommandInterface {
         User acceptingPlayer = event.getUser();
 
         if (gameManager.isInGame(acceptingPlayer)) {
-            gameManager.sendPrivateMessage(acceptingPlayer, "You are already in a game.");
+            event.reply("You are already in a game.").setEphemeral(true).queue();
             return;
         }
 
         if (gameManager.getPendingInvites().containsKey(acceptingPlayer)) {
-            gameManager.acceptInvite(acceptingPlayer);
+            gameManager.acceptInvite(acceptingPlayer, event);
         } else {
-            gameManager.sendPrivateMessage(acceptingPlayer, "You don't have any pending invites.");
+            event.reply("You don't have any pending invites.").setEphemeral(true).queue();
         }
 
         COOLDOWN_MANAGER.setCooldown("accept", event.getUser());
