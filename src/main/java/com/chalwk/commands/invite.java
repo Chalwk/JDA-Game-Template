@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a command for inviting another player to play a game.
+ * Represents a command for inviting a user to play a game.
  */
 public class invite implements CommandInterface {
 
@@ -53,10 +53,10 @@ public class invite implements CommandInterface {
 
         List<OptionData> options = new ArrayList<>();
         options.add(new OptionData(OptionType.USER, "opponent", "The user to invite", true));
-        OptionData option = new OptionData(OptionType.INTEGER, "layout", "The hangman layout you want to use", true);
+        OptionData option = new OptionData(OptionType.STRING, "SUB_COMMAND", "Some description here", true);
 
-        option.addChoice("Gallows", 0);
-        option.addChoice("Exercise", 1);
+        option.addChoice("something", "SOME_VALUE");
+        option.addChoice("something_else", "ANOTHER_VALUE");
 
         options.add(option);
         return options;
@@ -76,9 +76,18 @@ public class invite implements CommandInterface {
         User userToInvite = event.getOption("opponent").getAsUser();
         User invitingPlayer = event.getUser();
 
+        if (isSelf(event, userToInvite, invitingPlayer)) return;
 
         gameManager.invitePlayer(invitingPlayer, userToInvite, event);
 
-        COOLDOWN_MANAGER.setCooldown("invite", event.getUser());
+        COOLDOWN_MANAGER.setCooldown(getName(), event.getUser());
+    }
+
+    private boolean isSelf(SlashCommandInteractionEvent event, User userToInvite, User invitingPlayer) {
+        if (userToInvite.getId().equals(invitingPlayer.getId())) {
+            event.reply("## You can't invite yourself to a game!").setEphemeral(true).queue();
+            return true;
+        }
+        return false;
     }
 }

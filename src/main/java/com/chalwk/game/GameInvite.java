@@ -10,31 +10,15 @@ public class GameInvite {
     private final User invitingPlayer;
     private final User invitedPlayer;
 
-    /**
-     * Creates a new GameInvite instance for the specified players.
-     *
-     * @param invitingPlayer the user who initiated the game
-     * @param invitedPlayer  the user who was invited to join the game
-     */
     public GameInvite(User invitingPlayer, User invitedPlayer) {
         this.invitingPlayer = invitingPlayer;
         this.invitedPlayer = invitedPlayer;
     }
 
-    /**
-     * Gets the user who initiated the game.
-     *
-     * @return the inviting player
-     */
     public User getInvitingPlayer() {
         return invitingPlayer;
     }
 
-    /**
-     * Gets the user who was invited to join the game.
-     *
-     * @return the invited player
-     */
     public User getInvitedPlayer() {
         return invitedPlayer;
     }

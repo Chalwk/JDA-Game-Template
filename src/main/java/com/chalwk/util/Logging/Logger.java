@@ -5,34 +5,24 @@ package com.chalwk.util.Logging;
 import java.io.PrintStream;
 import java.util.Date;
 
+/**
+ * A simple logging utility that logs messages to the console.
+ */
+
 public class Logger {
 
     private static final PrintStream stream = System.err;
     private static LogLevel logLevel = LogLevel.WARNING;
 
-    /**
-     * Sets the log level for the logger.
-     *
-     * @param level the log level to set
-     */
     public static void setLogLevel(LogLevel level) {
         logLevel = level;
     }
 
-    /**
-     * Logs a message with the specified log level.
-     *
-     * @param level   the log level
-     * @param message the message to log
-     */
     public static void log(LogLevel level, String message) {
         if (level.getValue() >= logLevel.getValue()) {
             log(level.name() + " - " + message);
         }
     }
-
-    // Convenience methods for logging at different levels (severe, warning, info, etc.)
-    // These methods call the log method with the appropriate log level
 
     public static void severe(String message) {
         log(LogLevel.SEVERE, message);

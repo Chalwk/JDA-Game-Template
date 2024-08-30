@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a command for declining a game from another player.
+ * Represents a command for declining a game invite.
  */
 public class decline implements CommandInterface {
 
@@ -72,6 +72,6 @@ public class decline implements CommandInterface {
 
         gameManager.declineInvite(decliningPlayer, event);
 
-        COOLDOWN_MANAGER.setCooldown("decline", event.getUser());
+        COOLDOWN_MANAGER.setCooldown(getName(), event.getUser());
     }
 }

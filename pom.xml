@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.chalwk.Main</groupId>
-    <artifactId>GameManager</artifactId>
+    <artifactId>JDAGameTemplate</artifactId>
     <version>1.0.0</version>
 
-    <name>GameManager</name>
-    <description>Discord Bot template using the JDA framework</description>
-    <url>https://github.com/Chalwk77/virtual-pets</url>
+    <name>JDAGameTemplate</name>
+    <description>Discord Bot using the JDA framework</description>
+    <url>https://github.com/Chalwk77/</url>
     <organization>
         <name>Chalwk's Projects</name>
     </organization>

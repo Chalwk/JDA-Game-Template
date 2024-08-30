@@ -41,7 +41,6 @@ public class CommandListener extends ListenerAdapter {
      * Executes the appropriate command based on the given slash command interaction event.
      *
      * @param event The SlashCommandInteractionEvent object containing command event details.
-     * @throws IOException if an error occurs during command execution.
      */
     @Override
     public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {

@@ -10,22 +10,22 @@ import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.chalwk.util.fileIO.loadChannelID;
+
 /**
  * Manages game-related operations, including creating games, inviting players, and managing pending invites.
  */
 public class GameManager {
 
-    // The channel ID to send game-related messages to
-    private static String channelID = "";
-    // Map of active games, with the key being the player and the value being the game
     private final Map<User, Game> games;
-    // Map of pending invites, with the key being the invited player and the value being the invite
     private final Map<User, GameInvite> pendingInvites;
+    private static String channelID = "";
 
     /**
-     * Creates a new GameManager instance with empty maps for games and pending invites.
+     * Initializes an empty map for storing active games and pending invites.
      */
     public GameManager() {
+        channelID = loadChannelID();
         this.games = new HashMap<>();
         this.pendingInvites = new HashMap<>();
     }
@@ -40,20 +40,10 @@ public class GameManager {
         return games.containsKey(player);
     }
 
-    /**
-     * Gets the channel ID to send game-related messages to.
-     *
-     * @return the channel ID
-     */
     public static String getChannelID() {
         return GameManager.channelID;
     }
 
-    /**
-     * Sets the channel ID to send game-related messages to.
-     *
-     * @param channelID the channel ID to set
-     */
     public void setChannelID(String channelID) {
         GameManager.channelID = channelID;
     }
@@ -99,12 +89,6 @@ public class GameManager {
         return pendingInvites;
     }
 
-    /**
-     * Returns the game associated with the provided player.
-     *
-     * @param player the player to get the game for
-     * @return the game associated with the player
-     */
     public Game getGame(User player) {
         return games.get(player);
     }
@@ -148,23 +132,20 @@ public class GameManager {
         }
     }
 
-    /**
-     * Returns the map of active games.
-     *
-     * @return a map containing the active games
-     */
     public Map<User, Game> getGames() {
         return games;
     }
 
-    /**
-     * Removes a game from the active games map.
-     *
-     * @param invitingPlayer the user who initiated the game
-     * @param invitedPlayer  the user who was invited to join the game
-     */
     public void removeGame(User invitingPlayer, User invitedPlayer) {
         this.getGames().remove(invitingPlayer);
         this.getGames().remove(invitedPlayer);
+    }
+
+    public void cancelInvite(User invitingPlayer) {
+        pendingInvites.remove(invitingPlayer);
+    }
+
+    public String getInvitee(User invitingPlayer) {
+        return pendingInvites.get(invitingPlayer).getInvitedPlayer().getAsMention();
     }
 }

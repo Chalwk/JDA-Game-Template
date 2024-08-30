@@ -14,9 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a command for accepting a game invite.
+ * Represents a command for canceling a game invite.
  */
-public class accept implements CommandInterface {
+public class cancel implements CommandInterface {
 
     /**
      * The cooldown manager for the command.
@@ -27,23 +27,24 @@ public class accept implements CommandInterface {
      * The game manager for managing game operations.
      */
     private final GameManager gameManager;
+
     /**
      * Initializes the accept command instance with the provided GameManager.
      *
      * @param gameManager the GameManager managing game operations
      */
-    public accept(GameManager gameManager) {
+    public cancel(GameManager gameManager) {
         this.gameManager = gameManager;
     }
 
     @Override
     public String getName() {
-        return "accept";
+        return "cancel";
     }
 
     @Override
     public String getDescription() {
-        return "Accept an invite to play a game";
+        return "Cancel an invite to play a game";
     }
 
     @Override
@@ -62,16 +63,10 @@ public class accept implements CommandInterface {
 
         if (settings.notCorrectChannel(event)) return;
 
-        User acceptingPlayer = event.getUser();
-
-        if (gameManager.isInGame(acceptingPlayer)) {
-            event.reply("## You are already in a game.").setEphemeral(true).queue();
-            return;
-        } else if (gameManager.getPendingInvites().containsKey(acceptingPlayer)) {
-            gameManager.acceptInvite(acceptingPlayer, event);
-        } else {
-            event.reply("## You don't have any pending invites.").setEphemeral(true).queue();
-        }
+        User user = event.getUser();
+        String invitee = gameManager.getInvitee(user);
+        gameManager.cancelInvite(user);
+        event.reply("Invite to play a game with " + invitee + " has been canceled.").setEphemeral(true).queue();
 
         COOLDOWN_MANAGER.setCooldown(getName(), event.getUser());
     }

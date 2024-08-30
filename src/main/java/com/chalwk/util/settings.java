@@ -11,21 +11,10 @@ public class settings {
 
     public static final int DEFAULT_TIME_LIMIT = 300;
 
-    /**
-     * Gets the default time limit for a game.
-     *
-     * @return the default time limit in seconds
-     */
     public static int getDefaultTimeLimit() {
         return DEFAULT_TIME_LIMIT;
     }
 
-    /**
-     * Checks if the command was used in the correct channel.
-     *
-     * @param event the event to check
-     * @return true if the command was not used in the correct channel, false otherwise
-     */
     public static boolean notCorrectChannel(SlashCommandInteractionEvent event) {
         String thisChannel = event.getChannel().getId();
         String requiredChannel = GameManager.getChannelID();
