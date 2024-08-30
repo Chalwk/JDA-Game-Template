@@ -6,6 +6,7 @@ package com.chalwk.bot;
 import com.chalwk.CommandManager.CommandListener;
 import com.chalwk.Listeners.EventListeners;
 import com.chalwk.commands.accept;
+import com.chalwk.commands.channel;
 import com.chalwk.commands.decline;
 import com.chalwk.commands.invite;
 import com.chalwk.game.GameManager;
@@ -28,6 +29,9 @@ public class BotInitializer {
      * An instance of the PetDataHandler class to manage pet data.
      */
     public static ShardManager shardManager;
+
+    public static GameManager gameManager;
+
     /**
      * The bot's authentication token.
      */
@@ -42,6 +46,10 @@ public class BotInitializer {
         this.token = authentication.getToken();
     }
 
+    public static GameManager getGameManager() {
+        return gameManager;
+    }
+
     public static ShardManager getShardManager() {
         return shardManager;
     }
@@ -50,6 +58,9 @@ public class BotInitializer {
      * Initializes the bot and sets up event listeners and commands.
      */
     public void initializeBot() {
+
+        gameManager = new GameManager();
+
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(this.token)
                 .setStatus(OnlineStatus.ONLINE)
                 .setActivity(Activity.playing("GAME"))
@@ -71,12 +82,10 @@ public class BotInitializer {
      */
     private void registerCommands(ShardManager shardManager) {
         CommandListener commands = new CommandListener();
-
-        GameManager gameManager = new GameManager();
-
         commands.add(new invite(gameManager));
         commands.add(new accept(gameManager));
         commands.add(new decline(gameManager));
+        commands.add(new channel(gameManager));
         shardManager.addEventListener(commands);
     }
 }

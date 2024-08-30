@@ -15,11 +15,15 @@ import java.util.Map;
  */
 public class GameManager {
 
+    // The channel ID to send game-related messages to
+    private static String channelID = "";
+    // Map of active games, with the key being the player and the value being the game
     private final Map<User, Game> games;
-    private final Map<User, User> pendingInvites;
+    // Map of pending invites, with the key being the invited player and the value being the invite
+    private final Map<User, GameInvite> pendingInvites;
 
     /**
-     * Initializes an empty map for storing active games and pending invites.
+     * Creates a new GameManager instance with empty maps for games and pending invites.
      */
     public GameManager() {
         this.games = new HashMap<>();
@@ -37,19 +41,86 @@ public class GameManager {
     }
 
     /**
+     * Gets the channel ID to send game-related messages to.
+     *
+     * @return the channel ID
+     */
+    public static String getChannelID() {
+        return GameManager.channelID;
+    }
+
+    /**
+     * Sets the channel ID to send game-related messages to.
+     *
+     * @param channelID the channel ID to set
+     */
+    public void setChannelID(String channelID) {
+        GameManager.channelID = channelID;
+    }
+
+    /**
+     * Accepts a pending invite and creates a new game with the inviting and invited players.
+     *
+     * @param invitedPlayer the user who accepted the invite
+     * @param event         the event that triggered the invite acceptance
+     */
+    public void acceptInvite(User invitedPlayer, SlashCommandInteractionEvent event) {
+        GameInvite invite = pendingInvites.get(invitedPlayer);
+        User invitingPlayer = invite.getInvitingPlayer();
+        if (isInGame(invitingPlayer)) {
+            event.reply(invitingPlayer.getName() + " is already in a game.\nPlease wait until their current game is finished.").setEphemeral(true).queue();
+            return;
+        }
+        createGame(invitingPlayer, invitedPlayer, event);
+    }
+
+    /**
+     * Declines a pending invite and notifies the inviting player.
+     *
+     * @param invitedPlayer the user who declined the invite
+     * @param event         the event that triggered the invite decline
+     */
+    public void declineInvite(User invitedPlayer, SlashCommandInteractionEvent event) {
+        GameInvite invite = pendingInvites.get(invitedPlayer);
+        User invitingPlayer = invite.getInvitingPlayer();
+        event.replyEmbeds(new EmbedBuilder()
+                .setTitle("Game Invite Declined")
+                .setDescription(invitedPlayer.getAsMention() + " has declined the invite from " + invitingPlayer.getAsMention() + "!")
+                .setColor(Color.RED).build()).queue();
+        pendingInvites.remove(invitedPlayer);
+    }
+
+    /**
+     * Returns the map of pending invites.
+     *
+     * @return a map containing the pending invites
+     */
+    public Map<User, GameInvite> getPendingInvites() {
+        return pendingInvites;
+    }
+
+    /**
+     * Returns the game associated with the provided player.
+     *
+     * @param player the player to get the game for
+     * @return the game associated with the player
+     */
+    public Game getGame(User player) {
+        return games.get(player);
+    }
+
+    /**
      * Creates a new game and adds the inviting and invited players to it.
      *
      * @param invitingPlayer the user who initiated the game
      * @param invitedPlayer  the user who was invited to join the game
-     * @param event the event that triggered the game creation
+     * @param event          the event that triggered the game creation
      */
     public void createGame(User invitingPlayer, User invitedPlayer, SlashCommandInteractionEvent event) {
-        if (!isInGame(invitingPlayer) && !isInGame(invitedPlayer)) {
-            Game game = new Game(invitingPlayer, invitedPlayer, event);
-            game.startGame(event);
-            games.put(invitingPlayer, game);
-            games.put(invitedPlayer, game);
-        }
+        Game game = new Game(invitingPlayer, invitedPlayer, event, this);
+        pendingInvites.remove(invitedPlayer);
+        games.put(invitingPlayer, game);
+        games.put(invitedPlayer, game);
     }
 
     /**
@@ -57,7 +128,7 @@ public class GameManager {
      *
      * @param invitingPlayer the user who initiated the game
      * @param invitedPlayer  the user who was invited to join the game
-     * @param event the event that triggered the invite
+     * @param event          the event that triggered the invite
      */
     public void invitePlayer(User invitingPlayer, User invitedPlayer, SlashCommandInteractionEvent event) {
 
@@ -65,7 +136,7 @@ public class GameManager {
         embed.setTitle("Game Invite");
 
         if (!isInGame(invitingPlayer) && !isInGame(invitedPlayer)) {
-            pendingInvites.put(invitedPlayer, invitingPlayer);
+            pendingInvites.put(invitedPlayer, new GameInvite(invitingPlayer, invitedPlayer));
             event.replyEmbeds(embed
                     .setDescription(invitingPlayer.getAsMention() + " has invited " + invitedPlayer.getAsMention() + " to play a game!")
                     .setFooter("Type /accept to join the game or /decline to decline the invite.")
@@ -78,42 +149,22 @@ public class GameManager {
     }
 
     /**
-     * Accepts a pending invite and creates a new game with the inviting and invited players.
+     * Returns the map of active games.
      *
-     * @param invitedPlayer the user who accepted the invite
-     * @param event the event that triggered the invite acceptance
+     * @return a map containing the active games
      */
-    public void acceptInvite(User invitedPlayer, SlashCommandInteractionEvent event) {
-        User invitingPlayer = pendingInvites.get(invitedPlayer);
-        pendingInvites.remove(invitedPlayer);
-        createGame(invitingPlayer, invitedPlayer, event);
-        event.replyEmbeds(new EmbedBuilder()
-                .setTitle("Game Invite")
-                .setDescription(invitedPlayer.getName() + " has accepted the invite from " + invitingPlayer.getName() + "!")
-                .setColor(Color.GREEN).build()).queue();
+    public Map<User, Game> getGames() {
+        return games;
     }
 
     /**
-     * Declines a pending invite and notifies the inviting player.
+     * Removes a game from the active games map.
      *
-     * @param invitedPlayer the user who declined the invite
-     * @param event the event that triggered the invite decline
+     * @param invitingPlayer the user who initiated the game
+     * @param invitedPlayer  the user who was invited to join the game
      */
-    public void declineInvite(User invitedPlayer, SlashCommandInteractionEvent event) {
-        User invitingPlayer = pendingInvites.get(invitedPlayer);
-        event.replyEmbeds(new EmbedBuilder()
-                .setTitle("Game Invite")
-                .setDescription(invitedPlayer.getName() + " has declined the invite from " + invitingPlayer.getName() + "!")
-                .setColor(Color.RED).build()).queue();
-        pendingInvites.remove(invitedPlayer);
-    }
-
-    /**
-     * Returns the map of pending invites.
-     *
-     * @return a map containing the pending invites
-     */
-    public Map<User, User> getPendingInvites() {
-        return pendingInvites;
+    public void removeGame(User invitingPlayer, User invitedPlayer) {
+        this.getGames().remove(invitingPlayer);
+        this.getGames().remove(invitedPlayer);
     }
 }

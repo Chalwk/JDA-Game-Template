@@ -5,13 +5,18 @@ package com.chalwk.commands;
 import com.chalwk.CommandManager.CommandCooldownManager;
 import com.chalwk.CommandManager.CommandInterface;
 import com.chalwk.game.GameManager;
+import com.chalwk.util.settings;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a command for inviting another player to play a game.
+ */
 public class invite implements CommandInterface {
 
     /**
@@ -45,7 +50,16 @@ public class invite implements CommandInterface {
 
     @Override
     public List<OptionData> getOptions() {
-        return List.of(new OptionData(OptionType.USER, "user", "The user to invite", true));
+
+        List<OptionData> options = new ArrayList<>();
+        options.add(new OptionData(OptionType.USER, "opponent", "The user to invite", true));
+        OptionData option = new OptionData(OptionType.INTEGER, "layout", "The hangman layout you want to use", true);
+
+        option.addChoice("Gallows", 0);
+        option.addChoice("Exercise", 1);
+
+        options.add(option);
+        return options;
     }
 
     /**
@@ -57,8 +71,11 @@ public class invite implements CommandInterface {
     public void execute(SlashCommandInteractionEvent event) {
         if (COOLDOWN_MANAGER.isOnCooldown(event)) return;
 
-        User userToInvite = event.getOption("user").getAsUser();
+        if (settings.notCorrectChannel(event)) return;
+
+        User userToInvite = event.getOption("opponent").getAsUser();
         User invitingPlayer = event.getUser();
+
 
         gameManager.invitePlayer(invitingPlayer, userToInvite, event);
 

@@ -5,6 +5,7 @@ package com.chalwk.commands;
 import com.chalwk.CommandManager.CommandCooldownManager;
 import com.chalwk.CommandManager.CommandInterface;
 import com.chalwk.game.GameManager;
+import com.chalwk.util.settings;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -12,6 +13,9 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a command for declining a game from another player.
+ */
 public class decline implements CommandInterface {
 
     /**
@@ -35,7 +39,7 @@ public class decline implements CommandInterface {
 
     @Override
     public String getName() {
-        return "accept";
+        return "decline";
     }
 
     @Override
@@ -57,10 +61,12 @@ public class decline implements CommandInterface {
     public void execute(SlashCommandInteractionEvent event) {
         if (COOLDOWN_MANAGER.isOnCooldown(event)) return;
 
+        if (settings.notCorrectChannel(event)) return;
+
         User decliningPlayer = event.getUser();
 
         if (!gameManager.getPendingInvites().containsKey(decliningPlayer)) {
-            event.reply("You don't have any pending invites.").setEphemeral(true).queue();
+            event.reply("## You don't have any pending invites.").setEphemeral(true).queue();
             return;
         }
 

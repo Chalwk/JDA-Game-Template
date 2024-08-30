@@ -5,6 +5,7 @@ package com.chalwk.commands;
 import com.chalwk.CommandManager.CommandCooldownManager;
 import com.chalwk.CommandManager.CommandInterface;
 import com.chalwk.game.GameManager;
+import com.chalwk.util.settings;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
@@ -13,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a command for accepting a game invite in the context of a game or a chat bot.
+ * Represents a command for accepting a game invite from another player.
  */
 public class accept implements CommandInterface {
 
@@ -26,7 +27,6 @@ public class accept implements CommandInterface {
      * The game manager for managing game operations.
      */
     private final GameManager gameManager;
-
     /**
      * Initializes the accept command instance with the provided GameManager.
      *
@@ -60,17 +60,17 @@ public class accept implements CommandInterface {
     public void execute(SlashCommandInteractionEvent event) {
         if (COOLDOWN_MANAGER.isOnCooldown(event)) return;
 
+        if (settings.notCorrectChannel(event)) return;
+
         User acceptingPlayer = event.getUser();
 
         if (gameManager.isInGame(acceptingPlayer)) {
-            event.reply("You are already in a game.").setEphemeral(true).queue();
+            event.reply("## You are already in a game.").setEphemeral(true).queue();
             return;
-        }
-
-        if (gameManager.getPendingInvites().containsKey(acceptingPlayer)) {
+        } else if (gameManager.getPendingInvites().containsKey(acceptingPlayer)) {
             gameManager.acceptInvite(acceptingPlayer, event);
         } else {
-            event.reply("You don't have any pending invites.").setEphemeral(true).queue();
+            event.reply("## You don't have any pending invites.").setEphemeral(true).queue();
         }
 
         COOLDOWN_MANAGER.setCooldown("accept", event.getUser());
